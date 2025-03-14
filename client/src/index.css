@@ -1,0 +1,31 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  font-family: "Outfit", sans-serif;
+}
+.active-special {
+  @apply bg-slate-700
+}
+.active hr {
+  @apply block;
+}
+::-webkit-scrollbar {
+  @apply hidden;
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-in-out forwards;
+}
