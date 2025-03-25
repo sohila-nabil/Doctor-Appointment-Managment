@@ -16,7 +16,7 @@ const Profile = () => {
   });
   const [isEdit, setIsEdit] = useState(false);
   return (
-    <div className="max-w-lg flex flex-col gap-2 text-sm">
+    <div className="max-w-lg flex flex-col gap-2 text-sm mt-28">
       <img className="w-36 rounded" src={userData.image} alt="user-image" />
       {isEdit ? (
         <input

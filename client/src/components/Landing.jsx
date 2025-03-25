@@ -3,7 +3,7 @@ import { assets } from "../assets/assets";
 
 const Landing = () => {
   return (
-    <div className="px-[50px] mt-10 bg-[#5F6FFF] w-full h-[600px] sm:h-[460px] relative overflow-hidden flex items-center text-white ">
+    <div className="px-[50px] mt-28 bg-[#5F6FFF] w-full h-[600px] sm:h-[460px] relative overflow-hidden flex items-center text-white ">
       <div className="mt-[-155px] sm:mt-0">
         <h1 className="font-semibold text-2xl sm:text-3xl md:text-5xl leading-snug">
           Book Appointment <br /> With Trusted Doctors

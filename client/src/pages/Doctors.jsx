@@ -30,11 +30,8 @@ const Doctors = () => {
     navigate(`/doctors/${selectedSpeciality}`);
   };
 
-  
-  
-
   return (
-    <div className="mt-20 sm:mt-0">
+    <div className="mt-28">
       <h3 className="mb-10">Browse through the doctors specialist.</h3>
       <div className="flex flex-col sm:flex-row gap-10">
         {/* Left Side - Specializations List */}

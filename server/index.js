@@ -3,20 +3,21 @@ import "dotenv/config";
 import cors from "cors";
 import dbConnection from "./config/dbConnection.js";
 import cloundinaryConnect from "./config/cloudinary.js";
+import adminRouter from "./routes/adminRoute.js";
+import doctorRouter from "./routes/doctorRoute.js";
 
 const app = express();
-
 
 // config
 // db connection
 dbConnection();
 // cloundinary connection
-cloundinaryConnect()
+cloundinaryConnect();
 
 // middleware
 app.use(
   cors({
-    origin: "http://localhost:5173/",
+    origin: ["http://localhost:5173", "http://localhost:5174"],
     methods: ["GET", "POST", "PUT", "DELETE"],
   })
 );
@@ -25,7 +26,8 @@ app.use(express.json());
 const port = process.env.PORT || 4000;
 
 // api routes
-
+app.use("/api/admin", adminRouter);
+app.use("/api/doctor", doctorRouter);
 // error handler
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;

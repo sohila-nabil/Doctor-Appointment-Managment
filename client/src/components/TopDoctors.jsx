@@ -9,10 +9,10 @@ const TopDoctors = () => {
   const [availableDoctors, setAvailableDoctors] = useState([]);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const filteredDoctors = doctors?.filter((item) => item);
-    setAvailableDoctors(filteredDoctors);
-  }, [doctors]);
+  // useEffect(() => {
+  //   const filteredDoctors = doctors?.filter((item) => item);
+  //   setAvailableDoctors(filteredDoctors);
+  // }, [doctors]);
 
   return (
     <div className="mt-20 flex flex-col gap-4">
@@ -23,14 +23,14 @@ const TopDoctors = () => {
         />
       </div>
       <div className="flex items-center gap-4 justify-evenly flex-wrap mx-auto mt-4 w-fit">
-        {availableDoctors?.slice(0, 10)?.map((item, index) => (
+        {doctors?.slice(0, 10)?.map((item, index) => (
           <div
             onClick={() => navigate(`/appointement/${item._id}`)}
             key={item._id}
             className="  hover:translate-y-[-10px] cursor-pointer transition-all duration-500"
           >
             <DoctorCard
-              image={item.image}
+              image={item.image.url}
               name={item.name}
               speciality={item.speciality}
               available={item.available}

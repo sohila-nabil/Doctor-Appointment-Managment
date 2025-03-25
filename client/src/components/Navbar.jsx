@@ -128,9 +128,6 @@
 
 // export default Navbar;
 
-
-
-
 "use client";
 
 import { useContext, useState, useEffect, useRef } from "react";
@@ -194,7 +191,7 @@ const Navbar = () => {
   };
 
   return (
-    <header className="py-4 mb-5 border-b border-gray-200 bg-white fixed top-0 left-0 right-0 z-50 shadow-sm z-50">
+    <header className="py-4 mb-5 border-b border-gray-200 bg-white fixed top-0 left-0 right-0  shadow-sm z-50">
       <div className="container mx-auto px-4 flex items-center justify-between">
         {/* Logo */}
         <img
@@ -506,4 +503,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
