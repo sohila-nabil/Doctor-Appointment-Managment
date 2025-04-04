@@ -1,20 +1,55 @@
-import React, { useState } from "react";
-
+import React, { useContext, useEffect, useState } from "react";
+import axios from "axios";
+import { projectContext } from "../context/Context";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 const Login = () => {
+  const navigate = useNavigate();
   const [state, setState] = useState("Sign Up");
+  const [loading, setLoading] = useState(false);
+  const { backendUrl, setToken, token } = useContext(projectContext);
   const [userData, setUserData] = useState({
-    username: "",
+    name: "",
     email: "",
     password: "",
   });
-  const handleOnSubmit = (e) => {
+  let url;
+  if (state === "Sign Up") {
+    url = `${backendUrl}/api/user/register`;
+  } else {
+    url = `${backendUrl}/api/user/login`;
+  }
+
+  const handleOnSubmit = async (e) => {
     e.preventDefault();
-    console.log(userData);
+    setLoading(true);
+    try {
+      const { data } = await axios.post(url, userData);
+      if (data.success) {
+        setToken(data.token);
+        localStorage.setItem("token", data.token);
+      }
+      toast.success(data.message);
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response.data.message);
+    } finally {
+      setLoading(false);
+    }
   };
-  console.log(userData);
-  
+
+  useEffect(() => {
+    if (token) {
+      navigate("/");
+    }
+  }, [token]);
+
   return (
-    <form onSubmit={handleOnSubmit} className="min-h-[80vh] flex items-center">
+    <form
+      onSubmit={handleOnSubmit}
+      className="min-h-[80vh] flex items-center mt-28"
+    >
       <div className="flex flex-col gap-3 m-auto items-start p-3 min-w-[340px] sm:min-w-96 border rounded-xl text-zinc-600  text-sm shadow-lg">
         <p className="text-2xl font-semibold">
           {state === "Sign Up" ? "Create an Account" : "Login"}
@@ -29,9 +64,9 @@ const Login = () => {
             <input
               className="border border-zinc-300 rounded w-full p-2 mt-1"
               type="text"
-              value={userData.username}
+              value={userData.name}
               onChange={(e) =>
-                setUserData({ ...userData, username: e.target.value })
+                setUserData({ ...userData, name: e.target.value })
               }
             />
           </div>
@@ -60,8 +95,15 @@ const Login = () => {
             }
           />
         </div>
-        <button className="bg-[#5F6FFF] text-white w-full py-2 rounded-md text-base">
-          {state === "Sign Up" ? "Create an Account" : "Login"}
+        <button
+          disabled={loading}
+          className="bg-[#5F6FFF] text-white w-full py-2 rounded-md text-base"
+        >
+          {loading
+            ? "Loading..."
+            : state === "Sign Up"
+            ? "Create an Account"
+            : "Login"}
         </button>
         {state === "Sign Up" ? (
           <p>
@@ -75,7 +117,7 @@ const Login = () => {
           </p>
         ) : (
           <p>
-            Create a new account?{" "}
+            Create a new account?
             <span
               className="text-[#5F6FFF] underline cursor-pointer"
               onClick={() => setState("Sign Up")}

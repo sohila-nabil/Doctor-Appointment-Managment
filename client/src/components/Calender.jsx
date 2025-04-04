@@ -1,164 +1,181 @@
-import React, { useState } from "react";
-import { MdKeyboardArrowRight, MdKeyboardArrowLeft } from "react-icons/md";
+"use client";
 
-const Calendar = () => {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedTime, setSelectedTime] = useState("");
+import { useContext, useState } from "react";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { projectContext } from "../context/Context";
+import { useNavigate } from "react-router-dom";
 
-  const monthNames = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const Calendar = ({ doctor }) => {
+  const { backendUrl, token } = useContext(projectContext);
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const firstDayOfMonth = new Date(
-    currentDate.getFullYear(),
-    currentDate.getMonth(),
-    1
-  ).getDay();
-  const lastDateOfMonth = new Date(
-    currentDate.getFullYear(),
-    currentDate.getMonth() + 1,
-    0
-  ).getDate();
-  const prevLastDate = new Date(
-    currentDate.getFullYear(),
-    currentDate.getMonth(),
-    0
-  ).getDate();
-
-  const handleNextMonth = () => {
-    setCurrentDate((prevDate) => {
-      const newDate = new Date(prevDate);
-      newDate.setMonth(newDate.getMonth() + 1);
-      return newDate;
+  const handleDateChange = (e) => {
+    const selectedDate = e.target.value;
+    const selectedDay = new Date(selectedDate).toLocaleDateString("en-US", {
+      weekday: "long",
     });
-    setSelectedDate(null);
-    setSelectedTime("");
-  };
 
-  const handlePrevMonth = () => {
-    setCurrentDate((prevDate) => {
-      const newDate = new Date(prevDate);
-      newDate.setMonth(newDate.getMonth() - 1);
-      return newDate;
-    });
-    setSelectedDate(null);
-    setSelectedTime("");
-  };
-
-  const handleDateClick = (day) => {
-    const selectedFullDate = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth(),
-      day
+    const isAvailable = doctor.workingHours.some(
+      (day) => day.day === selectedDay
     );
-    setSelectedDate(selectedFullDate);
-    setSelectedTime("");
-  };
 
-  const formatTime = (time) => {
-    if (!time) return "";
-    const [hours, minutes] = time.split(":").map(Number);
-    const period = hours >= 12 ? "PM" : "AM";
-    const formattedHours = hours % 12 || 12; // Convert 24-hour to 12-hour format
-    return `${formattedHours}:${String(minutes).padStart(2, "0")} ${period}`;
-  };
-
-  const handleBooking = () => {
-    if (!selectedTime) {
-      alert("Please select a time for your appointment.");
+    if (!isAvailable) {
+      toast.error(
+        "Doctor is not available on this day. Please choose another day."
+      );
+      setDate("");
       return;
     }
-    alert(
-      `Booking confirmed for ${selectedDate.toDateString()} at ${formatTime(
-        selectedTime
-      )}`
-    );
+    setDate(selectedDate);
   };
 
-  const daysArray = [];
-  for (let i = firstDayOfMonth; i > 0; i--) {
-    daysArray.push({ day: prevLastDate - i + 1, isCurrentMonth: false });
-  }
-  for (let i = 1; i <= lastDateOfMonth; i++) {
-    daysArray.push({ day: i, isCurrentMonth: true });
-  }
+  // Convert time from HH:MM format to minutes for easy comparison
+  const timeToMinutes = (timeStr) => {
+    const [hours, minutes] = timeStr.split(":").map(Number);
+    return hours * 60 + minutes;
+  };
+
+  // Format time from 24-hour to 12-hour format for display
+  const formatTime = (time) => {
+    if (!time) return "";
+
+    const [hour, minute] = time.split(":").map(Number);
+    const ampm = hour >= 12 ? "PM" : "AM";
+    const formattedHour = hour % 12 || 12;
+    const formattedMinute = minute.toString().padStart(2, "0");
+    return `${formattedHour}:${formattedMinute} ${ampm}`;
+  };
+
+  const handleTimeChange = (e) => {
+    const selectedTime = e.target.value; // This is in 24-hour format (HH:MM)
+
+    if (!date) {
+      toast.error("Please select a date first");
+      setTime("");
+      return;
+    }
+
+    const selectedDay = new Date(date).toLocaleDateString("en-US", {
+      weekday: "long",
+    });
+
+    const workingDay = doctor.workingHours.find(
+      (day) => day.day === selectedDay
+    );
+
+    if (workingDay) {
+      // Convert all times to minutes for easier comparison
+      const startTimeMinutes = timeToMinutes(workingDay.startTime);
+      const endTimeMinutes = timeToMinutes(workingDay.endTime);
+      const selectedTimeMinutes = timeToMinutes(selectedTime);
+
+      if (
+        selectedTimeMinutes < startTimeMinutes ||
+        selectedTimeMinutes > endTimeMinutes
+      ) {
+        toast.error(
+          `Doctor is available from ${formatTime(
+            workingDay.startTime
+          )} to ${formatTime(workingDay.endTime)}`
+        );
+        setTime("");
+        return;
+      }
+
+      // If we reach here, the time is valid
+      setTime(selectedTime);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    if (!date || !time) {
+      toast.error("Please select a valid date and time.");
+      return;
+    }
+    try {
+      const { data } = await axios.post(
+        `${backendUrl}/api/user/book-appointment`,
+        {
+          date,
+          time,
+          doctorId: doctor._id,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log(data);
+      if (data.success) {
+        toast.success(data.message);
+        navigate("/my-appointement");
+        scrollTo(0, 0);
+      }
+    } catch (error) {
+      console.error("Error booking appointment:", error);
+      toast.error(error.response.data.message || "Error booking appointment");
+      return;
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="mx-auto mt-10 bg-white shadow-lg rounded-lg relative ">
-      <div className="bg-[#5F6FFF] flex items-center justify-between py-3 px-4 text-white text-lg rounded-t-lg">
-        <MdKeyboardArrowLeft
-          onClick={handlePrevMonth}
-          className="cursor-pointer hover:bg-gray-300 rounded-full p-1 text-2xl"
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white p-6 rounded-lg shadow-md w-full max-w-lg  mt-6"
+    >
+      <h2 className="text-xl font-semibold text-gray-700 mb-4">
+        Book an Appointment
+      </h2>
+      <div className="mb-4">
+        <label htmlFor="date" className="block text-gray-600 font-medium">
+          Date:
+        </label>
+        <input
+          type="date"
+          id="date"
+          name="date"
+          value={date}
+          onChange={handleDateChange}
+          className="w-full px-3 py-2 border rounded-lg mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
         />
-        {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
-        <MdKeyboardArrowRight
-          onClick={handleNextMonth}
-          className="cursor-pointer hover:bg-gray-300 rounded-full p-1 text-2xl"
+      </div>
+      <div className="mb-4">
+        <label htmlFor="time" className="block text-gray-600 font-medium">
+          Time:
+        </label>
+        <input
+          type="time"
+          id="time"
+          name="time"
+          value={time}
+          onChange={handleTimeChange}
+          className="w-full px-3 py-2 border rounded-lg mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
         />
+        {date && time && (
+          <p className="mt-2 text-sm text-gray-600">
+            Selected time: {formatTime(time)}
+          </p>
+        )}
       </div>
-
-      <div className="grid grid-cols-7 text-center font-medium mt-2 text-gray-700">
-        {dayNames.map((day, index) => (
-          <div key={index} className="py-2">
-            {day}
-          </div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-7 gap-1 text-center">
-        {daysArray.map((item, index) => (
-          <div
-            key={index}
-            onClick={() => item.isCurrentMonth && handleDateClick(item.day)}
-            className={`py-3 rounded-lg text-lg cursor-pointer transition-all 
-              ${
-                item.isCurrentMonth
-                  ? selectedDate?.getDate() === item.day &&
-                    selectedDate?.getMonth() === currentDate.getMonth()
-                    ? "bg-blue-500 text-white"
-                    : "text-black hover:bg-gray-200"
-                  : "text-gray-400"
-              }`}
-          >
-            {item.day}
-          </div>
-        ))}
-      </div>
-
-      {selectedDate && (
-        <div className=" absolute mt-4">
-          <h3 className="text-lg font-semibold">Select Time</h3>
-          <input
-            type="time"
-            value={selectedTime}
-            onChange={(e) => setSelectedTime(e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-1 mt-2 w-full"
-            required
-          />
-
-          <button
-            onClick={handleBooking}
-            className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-all mt-3"
-          >
-            Book Appointment on {selectedDate.toDateString()}
-            {selectedTime && `at ${formatTime(selectedTime)}`}
-          </button>
-        </div>
-      )}
-    </div>
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-all"
+      >
+        {loading ? "Booking..." : "Book Appointment"}
+      </button>
+    </form>
   );
 };
 

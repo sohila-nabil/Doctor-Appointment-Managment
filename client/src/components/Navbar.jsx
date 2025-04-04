@@ -128,8 +128,6 @@
 
 // export default Navbar;
 
-"use client";
-
 import { useContext, useState, useEffect, useRef } from "react";
 import { assets } from "./../assets/assets";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
@@ -143,7 +141,7 @@ import {
 import { projectContext } from "../context/Context";
 
 const Navbar = () => {
-  const { token, setToken } = useContext(projectContext);
+  const { token, setToken, userData } = useContext(projectContext);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const profileMenuRef = useRef(null);
@@ -181,9 +179,10 @@ const Navbar = () => {
   };
 
   const handleLogout = () => {
-    setToken(false);
+    setToken("");
     navigate("/login");
     setProfileMenuOpen(false);
+    localStorage.removeItem("token");
   };
 
   const isActive = (path) => {
@@ -278,8 +277,12 @@ const Navbar = () => {
                 aria-haspopup="true"
               >
                 <img
-                  className="w-8 h-8 rounded-full object-cover border-2 border-[#5f6FFF]"
-                  src={assets.profile_pic || "/placeholder.svg"}
+                  className="w-8 rounded-full "
+                  src={
+                    userData?.image?.url ||
+                    assets.profile_pic ||
+                    "/placeholder.svg"
+                  }
                   alt="Profile"
                 />
                 <img

@@ -1,23 +1,96 @@
-import React, { useState } from "react";
-import { assets } from "./../assets/assets";
+import React, { useContext, useState, useEffect, useRef } from "react";
+import { assets } from "../assets/assets";
+import { projectContext } from "../context/Context";
+import axios from "axios";
+import { Spinner } from "../components/Spinner";
+import { toast } from "react-toastify";
 
 const Profile = () => {
-  const [userData, setUserData] = useState({
-    name: "Edward Vincent",
-    image: assets.profile_pic,
-    email: "richardjameswap@gmail.com",
-    phone: "+1  123 456 7890",
-    address: {
-      line1: "57th Cross, Richmond Circle",
-      line2: "Richmond Circle, Church Road, London",
-    },
-    gender: "Male",
-    dob: "20 July, 2024",
-  });
+  const { userData, setUserData, backendUrl, token, loadingUser } =
+    useContext(projectContext);
+  const inputRef = useRef();
   const [isEdit, setIsEdit] = useState(false);
+  const [imagePreview, setImagePreview] = useState(false);
+  console.log(userData);
+
+  const updateProfileData = async () => {
+    const formData = new FormData();
+    formData.append("name", userData.name);
+    formData.append("email", userData.email);
+    formData.append("phone", userData.phone);
+    formData.append("dob", userData.dob);
+    formData.append("address", JSON.stringify(userData.address));
+    formData.append("image", userData.image);
+    formData.append("gender", userData.gender);
+
+    try {
+      const { data } = await axios.put(
+        `${backendUrl}/api/user/update-user`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      console.log(data);
+
+      if (data.success) {
+        toast.success(data.message);
+        setUserData(data.user);
+        setIsEdit(false);
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast.error(error.response.data.message);
+    } finally {
+      setIsEdit(false);
+    }
+  };
+
+  if (loadingUser) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-lg flex flex-col gap-2 text-sm mt-28">
-      <img className="w-36 rounded" src={userData.image} alt="user-image" />
+      {isEdit ? (
+        <>
+          <input
+            type="file"
+            ref={inputRef}
+            onChange={(e) => {
+              const url = URL.createObjectURL(e.target.files[0]);
+              setUserData({ ...userData, image: e.target.files[0] });
+              setImagePreview(url);
+            }}
+            hidden
+          />
+          <img
+            className="w-36 rounded cursor-pointer"
+            src={
+              imagePreview ||
+              userData?.image?.url ||
+              userData.image ||
+              assets.upload_area
+            }
+            alt="user-image"
+            onClick={() => inputRef.current.click()}
+          />
+        </>
+      ) : (
+        <img
+          className="w-36 rounded"
+          src={userData?.image?.url || userData.image}
+          alt="user-image"
+        />
+      )}
+
       {isEdit ? (
         <input
           className="bg-gray-100 text-3xl font-medium max-w-60 mt-4 border border-black"
@@ -57,11 +130,14 @@ const Profile = () => {
               <input
                 className="bg-gray-50"
                 type="text"
-                value={userData.address.line1}
+                value={userData.address?.line1 || ""}
                 onChange={(e) =>
                   setUserData({
                     ...userData,
-                    address: { ...userData.address, line1: e.target.value },
+                    address: {
+                      ...userData.address,
+                      line1: e.target.value || "",
+                    },
                   })
                 }
               />
@@ -69,20 +145,23 @@ const Profile = () => {
               <input
                 className="bg-gray-50"
                 type="text"
-                value={userData.address.line2}
+                value={userData.address?.line2 || ""}
                 onChange={(e) =>
                   setUserData({
                     ...userData,
-                    address: { ...userData.address, line2: e.target.value },
+                    address: {
+                      ...userData.address,
+                      line2: e.target.value || "",
+                    },
                   })
                 }
               />
             </p>
           ) : (
             <p className="text-gray-500 ">
-              {userData.address.line1}
+              {userData?.address?.line1 || ""}
               <br />
-              {userData.address.line2}
+              {userData?.address?.line2 || ""}
             </p>
           )}
         </div>
@@ -126,7 +205,7 @@ const Profile = () => {
         {isEdit ? (
           <button
             className="border border-[#5F6FFF] px-8 py-2 rounded-full hover:bg-[#5F6FFF] hover:text-white transition-all"
-            onClick={() => setIsEdit(false)}
+            onClick={updateProfileData}
           >
             Save information
           </button>

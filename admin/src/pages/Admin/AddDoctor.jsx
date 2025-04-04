@@ -31,6 +31,17 @@ const AddDoctor = () => {
     ],
   });
 
+  console.log(doctorData.workingHours);
+ const formatTime = (time) => {
+   if (!time) return "";
+   const [hours, minutes] = time.split(":");
+   const hour = parseInt(hours, 10);
+   const period = hour >= 12 ? "PM" : "AM";
+   const formattedHour = hour % 12 || 12;
+   return `${formattedHour}:${minutes} ${period}`;
+ };
+
+
   // Handle input change for normal fields
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -47,12 +58,17 @@ const AddDoctor = () => {
   };
 
   // Handle input change for working hours
-  const handleWorkingHourChange = (index, e) => {
-    const { name, value } = e.target;
-    const updatedWorkingHours = [...doctorData.workingHours];
-    updatedWorkingHours[index][name] = value;
-    setDoctorData({ ...doctorData, workingHours: updatedWorkingHours });
-  };
+ const handleWorkingHourChange = (index, e) => {
+  const { name, value } = e.target;
+   const updatedWorkingHours = [...doctorData.workingHours];
+   updatedWorkingHours[index][name] = value; // Keep 24-hour format
+
+   setDoctorData((prevDoctor) => ({
+     ...prevDoctor,
+     workingHours: updatedWorkingHours,
+   }));
+ };
+
 
   // Add new working hour entry
   const addWorkingHour = () => {

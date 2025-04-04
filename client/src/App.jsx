@@ -10,9 +10,27 @@ import Login from "./pages/Login";
 import Doctors from "./pages/Doctors";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import { ToastContainer, Zoom } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import paymentCanceled from './pages/paymentCanceled';
+import PaymentaymentCanceled from "./pages/paymentCanceled";
+import PaymentComplete from "./pages/paymentComplete";
 const App = () => {
   return (
     <div className="container mx-auto px-[20px]">
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        transition={Zoom}
+      />
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
@@ -24,6 +42,8 @@ const App = () => {
         <Route path="/doctors/:speciality" element={<Doctors />} />
         <Route path="/doctors" element={<Doctors />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/pay-canceled" element={<PaymentaymentCanceled />} />
+        <Route path="/pay-complete" element={<PaymentComplete />} />
       </Routes>
       <Footer />
     </div>

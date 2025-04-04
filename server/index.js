@@ -5,6 +5,9 @@ import dbConnection from "./config/dbConnection.js";
 import cloundinaryConnect from "./config/cloudinary.js";
 import adminRouter from "./routes/adminRoute.js";
 import doctorRouter from "./routes/doctorRoute.js";
+import userRouter from "./routes/userRoute.js";
+import paypalRouter from "./routes/paypalRoute.js";
+import paymentRoutes from "./routes/paymentRoutes.js";
 
 const app = express();
 
@@ -28,6 +31,12 @@ const port = process.env.PORT || 4000;
 // api routes
 app.use("/api/admin", adminRouter);
 app.use("/api/doctor", doctorRouter);
+app.use("/api/user", userRouter);
+app.use("/api/pay", paypalRouter);
+app.use("/api/payments", paymentRoutes);
+
+
+
 // error handler
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;

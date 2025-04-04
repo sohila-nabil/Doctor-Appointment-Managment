@@ -5,10 +5,16 @@ import { v2 as cloundinary } from "cloudinary";
 import validator from "validator";
 import jwt from "jsonwebtoken";
 
+const formatTimeTo12Hour = (time) => {
+  const [hours, minutes] = time.split(":");
+  let hour = parseInt(hours, 10);
+  let period = hour >= 12 ? "PM" : "AM";
+  hour = hour % 12 || 12;
+  return `${hour}:${minutes} ${period}`;
+};
+
 const addDoctor = async (req, res, next) => {
   try {
-    console.log(req.body);
-
     const {
       name,
       email,
@@ -25,7 +31,6 @@ const addDoctor = async (req, res, next) => {
     } = req.body;
     // const { } = JSON.parse(req.body.address);
     const imageFile = req.file;
-    console.log(imageFile);
 
     if (
       !name ||
@@ -48,7 +53,6 @@ const addDoctor = async (req, res, next) => {
         )
       );
     }
-console.log(imageFile);
 
     if (password.length < 8) {
       return next(
@@ -66,6 +70,7 @@ console.log(imageFile);
       folder: "Doctors",
       resource_type: "image",
     });
+
     const doctor = new Doctor({
       name,
       email,
@@ -81,7 +86,11 @@ console.log(imageFile);
         public_id: uploadedImage.public_id,
         url: uploadedImage.secure_url,
       },
-      workingHours: JSON.parse(workingHours),
+      workingHours: JSON.parse(workingHours).map((item) => ({
+        day: item.day,
+        startTime: formatTimeTo12Hour(item.startTime),
+        endTime: formatTimeTo12Hour(item.endTime),
+      })),
       date: Date.now(),
     });
     await doctor.save();
@@ -117,7 +126,8 @@ const adminLogin = async (req, res, next) => {
 const getDoctors = async (req, res, next) => {
   try {
     const doctors = await Doctor.find({}).select("-password");
-    if (doctors.length === 0) return next(errorHandler(404, "No doctors found"));
+    if (doctors.length === 0)
+      return next(errorHandler(404, "No doctors found"));
     res.json({ success: true, doctors });
   } catch (error) {
     console.error(error);
@@ -138,6 +148,5 @@ const changeDoctorAvailability = async (req, res, next) => {
     res.status(500).json({ success: false, message: error });
   }
 };
-
 
 export { addDoctor, adminLogin, getDoctors, changeDoctorAvailability };

@@ -13,6 +13,7 @@ const Appointement = () => {
 
   const [doctor, setDoctor] = useState(null);
   const [relatedDoctor, setRelatedDoctor] = useState([]);
+  const [currentDay, setCurrentDay] = useState("");
 
   useEffect(() => {
     if (docId && doctors.length > 0) {
@@ -27,9 +28,11 @@ const Appointement = () => {
         setRelatedDoctor(relatedDoctors);
       }
     }
+
+    // Get the current day
+    const today = new Date().toLocaleDateString("en-US", { weekday: "long" });
+    setCurrentDay(today);
   }, [docId, doctors]);
-  console.log(doctor);
-  console.log(relatedDoctor);
 
   if (!doctor) {
     return (
@@ -37,13 +40,19 @@ const Appointement = () => {
     );
   }
 
+
+
   return (
-    <div>
+    <div className="mt-28">
       {/* Doctor Details */}
       <div className="flex flex-col sm:flex-row gap-4">
         {/* Doctor Image */}
         <div className="bg-[#5F6FFF] rounded-lg">
-          <img className="w-full sm:max-w-72" src={doctor.image} alt="doctor" />
+          <img
+            className="w-full sm:max-w-72 "
+            src={doctor.image.url}
+            alt="doctor"
+          />
         </div>
 
         {/* Doctor Info */}
@@ -86,8 +95,42 @@ const Appointement = () => {
         </div>
       </div>
 
+      {/* Working Hours */}
+      <div className="mt-6">
+        <h3 className="text-xl font-semibold text-gray-800 mb-3">
+          Working Hours
+        </h3>
+        <table className="w-full border-collapse">
+          <thead>
+            <tr>
+              <th className="border border-gray-300 p-2">Day</th>
+              <th className="border border-gray-300 p-2">Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            {doctor.workingHours.map((day, index) => (
+              <tr key={index}>
+                <td
+                  className={`border border-gray-300 p-2 ${
+                    currentDay === day.day ? "bg-blue-100 border-blue-500" : ""
+                  }`}
+                >
+                  {day.day}
+                </td>
+                <td className="border border-gray-300 p-2">
+                  {day.startTime} - {day.endTime}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <h3 className="mt-10 mb-5 text-xl font-semibold text-gray-800">
+        Make an appointment
+      </h3>
       {/* Calendar Component */}
-      <Calender />
+      <Calender doctor={doctor} />
 
       {/* Related Doctors Section */}
       <div className="mt-40">
