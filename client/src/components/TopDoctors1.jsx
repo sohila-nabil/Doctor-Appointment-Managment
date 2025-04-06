@@ -42,7 +42,7 @@ const TopDoctors = () => {
             style={{ animationDelay: `${index * 0.1}s` }}
           >
             <DoctorCard
-              image={item.image}
+              image={item?.image?.url}
               name={item.name}
               speciality={item.speciality}
               available={item.available}

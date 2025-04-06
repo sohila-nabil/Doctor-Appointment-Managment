@@ -8,6 +8,7 @@ import doctorRouter from "./routes/doctorRoute.js";
 import userRouter from "./routes/userRoute.js";
 import paypalRouter from "./routes/paypalRoute.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
+import appointmentRouter from "./routes/appointmentRoute.js";
 
 const app = express();
 
@@ -34,8 +35,7 @@ app.use("/api/doctor", doctorRouter);
 app.use("/api/user", userRouter);
 app.use("/api/pay", paypalRouter);
 app.use("/api/payments", paymentRoutes);
-
-
+app.use("/api/appointment", appointmentRouter);
 
 // error handler
 app.use((err, req, res, next) => {

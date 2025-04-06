@@ -4,7 +4,7 @@ const DoctorCard = ({ image, name, speciality, available }) => {
   return (
     <div className="border-[1px] border-slate-300 rounded-md overflow-hidden">
       <div className="w-[210px] bg-[#EAEFFF]">
-        <img src={image.url} alt="doctor" className="w-full" />
+        <img src={image} alt="doctor" className="w-full" />
       </div>
       <div className="p-2">
         <p className="flex items-center gap-2 text-green-700 text-[15px]">

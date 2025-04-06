@@ -2,9 +2,14 @@ import React, { useContext, useState } from "react";
 import { assets } from "../assets/assets";
 import axios from "axios";
 import { AdminContext } from "../context/AdminContext";
-import { toast, Zoom } from "react-toastify";
+import { toast } from "react-toastify";
+import { DoctorContext } from "../context/DoctorContext";
+import { useNavigate } from "react-router-dom";
+
 const Login = () => {
-  const {  AdminTonken,setAdminToken ,backendUrl } = useContext(AdminContext);
+  const navigate = useNavigate();
+  const { AdminTonken, setAdminToken, backendUrl } = useContext(AdminContext);
+  const { doctorToken, setDoctorToken } = useContext(DoctorContext);
   const [state, setState] = useState("Admin");
   const [userData, setUserData] = useState({
     email: "",
@@ -17,12 +22,24 @@ const Login = () => {
         const res = await axios.post(`${backendUrl}/api/admin/login`, userData);
         if (res.data.success) {
           setAdminToken(res.data.token);
+          setDoctorToken("")
           localStorage.setItem("token", res.data.token);
           // window.location.href = "/dashboard";
         } else {
           toast.error(res.data.message);
         }
       } else {
+         const res = await axios.post(
+           `${backendUrl}/api/doctor/login`,
+           userData
+         );
+         if (res.data.success) {
+          setAdminToken("");
+           setDoctorToken(res.data.token);
+           localStorage.setItem("doctoken", res.data.token);
+          //  navigate("/doctor-dashbord")
+           // window.location.href = "/dashboard";
+         }
       }
     } catch (error) {
       console.error(error);

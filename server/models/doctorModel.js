@@ -37,7 +37,7 @@ const doctorSchema = new mongoose.Schema(
         endTime: { type: String, required: true }, // Example: "05:00 PM"
       },
     ],
-    appointments: { type: Array },
+    appointments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Appointment" }],
   },
   { timestamps: true }
 );

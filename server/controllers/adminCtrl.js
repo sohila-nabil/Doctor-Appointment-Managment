@@ -4,6 +4,8 @@ import bcrypt from "bcryptjs";
 import { v2 as cloundinary } from "cloudinary";
 import validator from "validator";
 import jwt from "jsonwebtoken";
+import Appointment from "./../models/appointments.js";
+import User from "../models/userModel.js";
 
 const formatTimeTo12Hour = (time) => {
   const [hours, minutes] = time.split(":");
@@ -149,4 +151,216 @@ const changeDoctorAvailability = async (req, res, next) => {
   }
 };
 
-export { addDoctor, adminLogin, getDoctors, changeDoctorAvailability };
+const getAllAppointments = async (req, res, next) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+    const skip = (page - 1) * limit;
+
+    // Build filter object
+    const filter = {};
+
+    // Search functionality
+    if (req.query.search) {
+      const searchRegex = new RegExp(req.query.search, "i");
+      filter.$or = [
+        { "userId.name": searchRegex },
+        { "doctorId.name": searchRegex },
+      ];
+    }
+
+    // Status filter
+    if (req.query.status) {
+      switch (req.query.status) {
+        case "paid":
+          filter.isPaid = true;
+          filter.isCancelled = false;
+          break;
+        case "pending":
+          filter.isPaid = false;
+          filter.isCancelled = false;
+          break;
+        case "cancelled":
+          filter.isCancelled = true;
+          break;
+      }
+    }
+
+    // Date filter
+    if (req.query.date) {
+      filter.date = req.query.date;
+    }
+
+    // Count total appointments with filters
+    const totalAppointments = await Appointment.countDocuments(filter);
+
+    // Get appointments with filters, pagination, and populate user and doctor details
+    const appointments = await Appointment.find(filter)
+      .populate("userId", "name email")
+      .populate("doctorId", "name speciality image address")
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+
+    if (appointments.length === 0 && page === 1) {
+      return res.json({
+        success: true,
+        currentPage: page,
+        totalPages: 0,
+        totalAppointments: 0,
+        appointments: [],
+      });
+    }
+
+    res.json({
+      success: true,
+      currentPage: page,
+      totalPages: Math.ceil(totalAppointments / limit),
+      totalAppointments,
+      appointments,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const deleteDoctor = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const doctor = await Doctor.findById(id);
+    if (!doctor) return next(errorHandler(404, "Doctor not found"));
+    if (doctor.image.public_id) {
+      await cloundinary.uploader.destroy(doctor.image.public_id);
+    }
+    await doctor.deleteOne();
+    res
+      .status(200)
+      .json({ success: true, message: "Doctor deleted successfully" });
+  } catch (error) {
+    console.log(error);
+    next(errorHandler(500, "Failed to delete doctor"));
+  }
+};
+
+// const getAllAppointments = async (req, res, next) => {
+//   try {
+//     const page = parseInt(req.query.page) || 1;
+//     const limit = 5;
+//     const skip = (page - 1) * limit;
+
+//     const filter = {};
+
+//     // Status filter
+//     if (req.query.status) {
+//       switch (req.query.status) {
+//         case "paid":
+//           filter.isPaid = true;
+//           filter.isCancelled = false;
+//           break;
+//         case "pending":
+//           filter.isPaid = false;
+//           filter.isCancelled = false;
+//           break;
+//         case "cancelled":
+//           filter.isCancelled = true;
+//           break;
+//       }
+//     }
+
+//     // Date filter
+//     if (req.query.date) {
+//       filter.date = req.query.date;
+//     }
+
+//     const searchRegex = req.query.search
+//       ? new RegExp(req.query.search, "i")
+//       : null;
+
+//     // Start building aggregation pipeline
+//     const pipeline = [
+//       { $match: filter },
+
+//       // Join with user collection
+//       {
+//         $lookup: {
+//           from: "users",
+//           localField: "userId",
+//           foreignField: "_id",
+//           as: "userId",
+//         },
+//       },
+//       { $unwind: "$userId" },
+
+//       // Join with doctor collection
+//       {
+//         $lookup: {
+//           from: "doctors",
+//           localField: "doctorId",
+//           foreignField: "_id",
+//           as: "doctorId",
+//         },
+//       },
+//       { $unwind: "$doctorId" },
+//     ];
+
+//     // Apply search filter
+//     if (searchRegex) {
+//       pipeline.push({
+//         $match: {
+//           $or: [
+//             { "userId.name": searchRegex },
+//             { "doctorId.name": searchRegex },
+//           ],
+//         },
+//       });
+//     }
+
+//     // Count total
+//     const totalAppointments = await Appointment.aggregate([
+//       ...pipeline,
+//       { $count: "total" },
+//     ]);
+//     const total = totalAppointments[0]?.total || 0;
+
+//     // Add pagination and sorting
+//     pipeline.push({ $sort: { createdAt: -1 } });
+//     pipeline.push({ $skip: skip });
+//     pipeline.push({ $limit: limit });
+
+//     const appointments = await Appointment.aggregate(pipeline);
+
+//     res.json({
+//       success: true,
+//       currentPage: page,
+//       totalPages: Math.ceil(total / limit),
+//       totalAppointments: total,
+//       appointments,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ success: false, message: error.message });
+//   }
+// };
+
+const getCounts = async (req, res, next) => {
+  try {
+    const doctorCount = await Doctor.countDocuments();
+    const appointmentCount = await Appointment.countDocuments();
+    const userCount = await User.countDocuments();
+    res.json({ success: true, doctorCount, appointmentCount, userCount });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export {
+  addDoctor,
+  adminLogin,
+  getDoctors,
+  changeDoctorAvailability,
+  getAllAppointments,
+  deleteDoctor,
+  getCounts,
+};

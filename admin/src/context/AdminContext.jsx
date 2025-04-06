@@ -12,7 +12,9 @@ export const AdminContext = createContext(null);
 
 const AdminContextProvidor = ({ children }) => {
   const [doctors, setDoctors] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [doctorsloading, setDoctorsLoading] = useState(false);
+  const [appointmentsloading, setAppointmentsDoctorsLoading] = useState(false);
+  const [appointments, setAppointments] = useState([]);
   const [error, setError] = useState(null);
   const [AdminTonken, setAdminToken] = useState(
     localStorage.getItem("token") ? localStorage.getItem("token") : ""
@@ -20,7 +22,7 @@ const AdminContextProvidor = ({ children }) => {
   const backendUrl = import.meta.env.VITE_API_URL;
 
   const fetchDoctors = async () => {
-    setLoading(true);
+    setDoctorsLoading(true);
     try {
       const res = await axios.get(`${backendUrl}/api/admin/doctors`, {
         headers: {
@@ -36,7 +38,7 @@ const AdminContextProvidor = ({ children }) => {
       setError(error.response?.data?.message || "Failed to fetch doctors");
       console.log(error);
     } finally {
-      setLoading(false);
+      setDoctorsLoading(false);
     }
   };
 
@@ -68,14 +70,27 @@ const AdminContextProvidor = ({ children }) => {
     }
   };
 
+  const getAllApoointments = async () => {
+    try {
+      const { data } = await axios.get(`${backendUrl}/api/admin/appointments`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const value = {
     AdminTonken,
     setAdminToken,
     backendUrl,
     doctors,
-    loading,
+    doctorsloading,
     error,
-    setLoading,
+    setDoctorsLoading,
     setError,
     setDoctors,
     fetchDoctors,

@@ -3,61 +3,30 @@ import CountCard from "../../components/CountCard";
 import { assets } from "../../assets/assets";
 import AppointmentCard from "../../components/AppointmentCard";
 import axios from "axios";
-import { AdminContext } from "../../context/AdminContext";
-const Dashboard = () => {
-  const { backendUrl, AdminTonken } = useContext(AdminContext);
-  const [appointmentsCount, setAppointmentsCount] = useState(0);
-  const [latestAppoinments, setLatestAppoinments] = useState([]);
-  const [doctorsCount, setDoctorsCount] = useState(0);
-  const [patientsCount, setPatientsCount] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const getCounts = async () => {
-    try {
-      const { data } = await axios.get(`${backendUrl}/api/admin/counts`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      console.log(data);
-      setAppointmentsCount(data.appointmentCount);
-      setDoctorsCount(data.doctorCount);
-      setPatientsCount(data.userCount);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+import { DoctorContext } from "../../context/DoctorContext";
+const DoctorDashboard = () => {
+  const {
+    backendUrl,
+    doctorToken,
+    appointmentsCount,
+    latestAppoinments,
+    doctorsCount,
+    patientsCount,
+    loading,
+    getCounts,
+  } = useContext(DoctorContext);
 
   const formatDate = (dateString) => {
     const options = { year: "numeric", month: "long", day: "numeric" };
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", options);
   };
-  const getLatestAppointments = async () => {
-    setLoading(true);
-    try {
-      const { data } = await axios.get(
-        `${backendUrl}/api/appointment/latest/appointments`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      console.log(data.appointments);
-      setLatestAppoinments(data.appointments);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
-    if (AdminTonken) {
+    if (doctorToken) {
       getCounts();
-      getLatestAppointments();
     }
-  }, [AdminTonken]);
+  }, [doctorToken]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -111,4 +80,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default DoctorDashboard;

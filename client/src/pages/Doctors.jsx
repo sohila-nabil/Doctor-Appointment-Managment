@@ -58,7 +58,7 @@ const Doctors = () => {
               className="mt-0 hover:translate-y-[-10px] cursor-pointer transition-all duration-500"
             >
               <DoctorCard
-                image={item.image}
+                image={item.image.url}
                 name={item.name}
                 speciality={item.speciality}
                 available={item.available}

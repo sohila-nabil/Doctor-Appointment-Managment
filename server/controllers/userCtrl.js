@@ -375,7 +375,9 @@ const bookAppointment = async (req, res, next) => {
       appointment: newAppointment,
     });
   } catch (error) {
+    console.log(error);
     next(errorHandler(500, error));
+
   }
 };
 

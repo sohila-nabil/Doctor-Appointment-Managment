@@ -11,8 +11,10 @@ import tick_icon from './tick_icon.svg'
 import appointments_icon from './appointments_icon.svg'
 import earning_icon from './earning_icon.svg'
 import patients_icon from './patients_icon.svg'
+import profile_pic from "./profile_pic.png";
 
 export const assets = {
+    profile_pic,
     add_icon,
     admin_logo,
     appointment_icon,

@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { ChevronLeft, ChevronRight, Loader } from "lucide-react";
-import { AdminContext } from "../../context/AdminContext";
 import SearchFilter from "../../components/SearchFilter";
 import { toast } from "react-toastify";
 import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
+import { DoctorContext } from "../../context/DoctorContext";
 
-const AllApointments = () => {
-  const { backendUrl, AdminTonken } = useContext(AdminContext);
+const DoctorApointments = () => {
+  const { backendUrl, doctorToken } = useContext(DoctorContext);
   const [appointments, setAppointments] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
@@ -35,14 +35,15 @@ const AllApointments = () => {
       if (dateFilter) params.append("date", dateFilter);
 
       const { data } = await axios.get(
-        `${backendUrl}/api/admin/appointments?${params.toString()}`,
+        `${backendUrl}/api/doctor/doc/appointments?${params.toString()}`,
         {
           headers: {
-            Authorization: `Bearer ${AdminTonken}`,
+            Authorization: `Bearer ${doctorToken}`,
           },
         }
       );
-
+     console.log(data);
+     
       if (data.success) {
         setAppointments(data.appointments);
         setCurrentPage(data.currentPage);
@@ -58,6 +59,7 @@ const AllApointments = () => {
     }
   };
 
+ 
   useEffect(() => {
     fetchAppointments(currentPage);
   }, [currentPage]);
@@ -77,7 +79,6 @@ const AllApointments = () => {
   //   fetchAppointments(1);
   // };
 
-  console.log(appointments);
 
   const handleFilterChange = (e) => {
     setStatusFilter(e.target.value);
@@ -123,7 +124,7 @@ const AllApointments = () => {
         {},
         {
           headers: {
-            Authorization: `Bearer ${AdminTonken}`,
+            Authorization: `Bearer ${doctorToken}`,
           },
         }
       );
@@ -283,7 +284,6 @@ const AllApointments = () => {
                           setAppointmentToDelete(appointment);
                           setIsDeleteModalOpen(true);
                         }}
-                        
                       >
                         Cancel
                       </button>
@@ -504,4 +504,4 @@ const AllApointments = () => {
   );
 };
 
-export default AllApointments;
+export default DoctorApointments;

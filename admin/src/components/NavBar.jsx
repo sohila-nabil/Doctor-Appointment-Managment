@@ -1,13 +1,17 @@
 import React, { memo, useContext } from "react";
 import { assets } from "../assets/assets";
 import { AdminContext } from "../context/AdminContext";
-
+import { DoctorContext } from "../context/DoctorContext";
+import { useNavigate } from "react-router-dom";
 const NavBar = () => {
+  const navigate = useNavigate();
   const { AdminTonken, setAdminToken } = useContext(AdminContext);
+  const { DoctorTonken, setDoctorToken } = useContext( DoctorContext);
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    localStorage.removeItem("token") || localStorage.removeItem("doctoken");
     setAdminToken("");
-    window.location.href = "/";
+    setDoctorToken("");
+    navigate("/");
   };
   return (
     <div className="flex justify-between items-center px-4 sm:px-10  py-3 border-b bg-white">

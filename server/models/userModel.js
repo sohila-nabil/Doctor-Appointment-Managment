@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema(
     phone: { type: String, default: "00000000000" },
     date: { type: Number },
     time: { type: String },
-    appointments: { type: Array },
+    appointments:[ { type: mongoose.Schema.Types.ObjectId, ref: "Appointment" }],
   },
   { timestamps: true }
 );
