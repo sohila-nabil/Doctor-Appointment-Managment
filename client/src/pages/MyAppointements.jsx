@@ -33,6 +33,31 @@ const MyAppointments = () => {
     }
   };
 
+  const cancelAppointment = async (appointmentId) => {
+    try {
+      const { data } = await axios.put(
+        `${backendUrl}/api/user/cancel-appointment/${appointmentId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (data.success) {
+        toast.success("Appointment cancelled successfully");
+        setUserAppointments((prev) =>
+          prev.map((item) =>
+            item._id === appointmentId ? { ...item, isCancelled: true } : item
+          )
+        );
+      }
+    } catch (error) {
+      console.log(error.message);
+      toast.error("Failed to cancel appointment. Please try again.");
+    }
+  };
+
   useEffect(() => {
     if (token) getUserAppointments();
   }, [token]);
@@ -139,7 +164,10 @@ const MyAppointments = () => {
                   </button>
                 )}
                 {!item.isCancelled && !item.isPaid && (
-                  <button className="text-sm text-slate-500 text-center sm:min-w-48 py-2 border rounded  hover:bg-red-600 hover:text-white transition-all duration-300 ">
+                  <button
+                    onClick={() => cancelAppointment(item._id)}
+                    className="text-sm text-slate-500 text-center sm:min-w-48 py-2 border rounded  hover:bg-red-600 hover:text-white transition-all duration-300 "
+                  >
                     Cancel Appointment
                   </button>
                 )}
