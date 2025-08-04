@@ -1,6 +1,6 @@
 import { useContext, useState, useEffect, memo } from "react";
 import { AdminContext } from "../../context/AdminContext";
-import { Spinner } from "../../components/spinner";
+import { Spinner } from "../../components/Spinner";
 import axios from "axios";
 import {
   Search,
