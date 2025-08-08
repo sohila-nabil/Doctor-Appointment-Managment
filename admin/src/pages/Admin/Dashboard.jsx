@@ -99,10 +99,10 @@ const Dashboard = () => {
         <ul className="w-full p-4 flex flex-col gap-5">
           {latestAppoinments?.map((appointment) => (
             <AppointmentCard
-              key={appointment.id}
-              img={appointment.doctorId.image.url}
-              date={formatDate(appointment.date)}
-              dr_name={appointment.doctorId.name}
+              key={appointment?.id}
+              img={appointment?.doctorId?.image?.url}
+              date={formatDate(appointment?.date)}
+              dr_name={appointment?.doctorId?.name}
             />
           ))}
         </ul>
