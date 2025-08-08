@@ -1,10 +1,10 @@
-import Doctor from "./../models/doctorModel.js";
-import errorHandler from "./../utils/errorHandller.js";
+import Doctor from "../models/doctorModel.js";
+import errorHandler from "../utils/errorHandller.js";
 import bcrypt from "bcryptjs";
 import { v2 as cloundinary } from "cloudinary";
 import validator from "validator";
 import jwt from "jsonwebtoken";
-import Appointment from "./../models/appointments.js";
+import Appointment from "../models/appointments.js";
 import User from "../models/userModel.js";
 
 const formatTimeTo12Hour = (time) => {

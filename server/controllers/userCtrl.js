@@ -1,5 +1,5 @@
 import User from "../models/userModel.js";
-import errorHandler from "./../utils/errorHandller.js";
+import errorHandler from "../utils/errorHandller.js";
 import bcrypt from "bcryptjs";
 import validator from "validator";
 import jwt from "jsonwebtoken";
@@ -377,7 +377,6 @@ const bookAppointment = async (req, res, next) => {
   } catch (error) {
     console.log(error);
     next(errorHandler(500, error));
-
   }
 };
 

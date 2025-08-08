@@ -1,10 +1,6 @@
 import { useContext, useState, useEffect, memo } from "react";
 import { AdminContext } from "../../context/AdminContext";
-<<<<<<< HEAD
 import { Spinner } from "../../components/Spinner.jsx";
-=======
-import { Spinner } from "../../components/Spinner";
->>>>>>> 5fdc0ecf9ad8be357a937d0fd6933a9c969232b3
 import axios from "axios";
 import {
   Search,

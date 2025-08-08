@@ -10,7 +10,7 @@ import paypalRouter from "./routes/paypalRoute.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import appointmentRouter from "./routes/appointmentRoute.js";
 
-const app = express();
+export const app = express();
 
 // config
 // db connection
@@ -44,4 +44,4 @@ app.use((err, req, res, next) => {
   res.status(statusCode).json({ success: false, statusCode, message });
 });
 
-app.listen(port, () => console.log(`server is working on ${port}`));
+ app.listen(port, () => console.log(`server is working on ${port}`));
