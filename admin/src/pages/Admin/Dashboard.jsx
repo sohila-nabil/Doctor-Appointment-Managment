@@ -80,7 +80,7 @@ const Dashboard = () => {
         />
       </div>
 
-      {!loading && latestAppoinments.length === 0 && (
+      {!loading && latestAppoinments?.length === 0 && (
         <div className="flex justify-center items-center h-64">
           <p className="text-gray-500">No appointments found.</p>
         </div>
@@ -88,7 +88,7 @@ const Dashboard = () => {
 
       {/* table */}
       <div className="bg-white border rounded-lg p-4">
-        {!loading && latestAppoinments.length > 0 && (
+        {!loading && latestAppoinments?.length > 0 && (
           <div className="flex  items-center gap-2 p-4 border-b">
             <img src={assets.list_icon} alt="list_icon" />
             <h2 className="text-2xl font-bold text-gray-900">
@@ -97,7 +97,7 @@ const Dashboard = () => {
           </div>
         )}
         <ul className="w-full p-4 flex flex-col gap-5">
-          {latestAppoinments.map((appointment) => (
+          {latestAppoinments?.map((appointment) => (
             <AppointmentCard
               key={appointment.id}
               img={appointment.doctorId.image.url}
