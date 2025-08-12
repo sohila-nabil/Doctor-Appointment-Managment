@@ -42,8 +42,8 @@ This app allows users to search for doctors, book appointments (with optional Pa
 - **Security:** bcryptjs (password hashing)
 
 ---
-
-
+## 📽️ Demo Video
+https://www.linkedin.com/posts/sohila-nabil-16924a338_greetstack-activity-7314554558783836160-hT4R?utm_source=share&utm_medium=member_desktop&rcm=ACoAAFTA4GEBuhjbusj-I33iC0hLPEPnA9hyOO0
 ---
 ## Install dependencies
 - cd server
