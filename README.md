@@ -43,7 +43,7 @@ This app allows users to search for doctors, book appointments (with optional Pa
 
 ---
 ## 📽️ Demo Video
-https://www.linkedin.com/posts/sohila-nabil-16924a338_greetstack-activity-7314554558783836160-hT4R?utm_source=share&utm_medium=member_desktop&rcm=ACoAAFTA4GEBuhjbusj-I33iC0hLPEPnA9hyOO0
+https://drive.google.com/file/d/1uOuA_gaEjaGSHhIBq3dtC5tvszqRkVsU/view?usp=sharing
 ---
 ## Install dependencies
 - cd server
