@@ -37,6 +37,9 @@ app.use("/api/pay", paypalRouter);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/appointment", appointmentRouter);
 
+app.get("/api/hello", (req, res) => {
+  res.json({ message: "Hello from Express + Vercel!" });
+});
 // error handler
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
@@ -45,3 +48,4 @@ app.use((err, req, res, next) => {
 });
 
  app.listen(port, () => console.log(`server is working on ${port}`));
+export default app;
